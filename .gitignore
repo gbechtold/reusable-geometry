@@ -5,6 +5,6 @@ __pycache__/
 dist/
 build/
 *.egg-info/
-examples/**/out/*.stl
-examples/**/out/*.step
+examples/**/out/
+!examples/**/out/.gitkeep
 .DS_Store
