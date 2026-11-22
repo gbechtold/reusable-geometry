@@ -27,3 +27,4 @@ jobs:
         run: |
           python examples/eyewear/front.py
           python examples/eyewear/roundtrip.py
+          python examples/eyewear/glasses.py

@@ -122,6 +122,27 @@ One body reported 3937 mm³ from the B-rep and 2321 mm³ from its mesh. The mesh
 figure matched a hand calculation. Where the number matters - mass, material
 cost, a check - use `mesh_report()`.
 
+### 11. A socket arc swept the wrong way puts material where the pin goes
+
+The snap socket of `ClipHinge` is an arc around the pin centre. Sweeping it
+from -(180-snap) through **0** wraps the front half of the pin, which is what
+is wanted; sweeping through 180 wraps the back half and leaves solid material
+at the pin position. Both produce a valid, watertight, plausible-looking
+solid. The difference only shows up as a measurement: `measured_gap()`
+returned **0.000 mm** instead of 0.144 mm.
+
+This is the argument for `MechanicalFeature` measuring its own fit. No check
+on either body alone would have caught it.
+
+### 12. A repeated point in an outline fails with a message about nothing
+
+Two coincident points make `polyline()` raise `Standard_Failure: BRep_API:
+command not done`, which says nothing about the cause. It happens naturally
+when an arc is built to start exactly where the straight run ends - that is,
+when the geometry is *right*.
+
+**Consequence.** `_dedupe` drops repeated points before any wire is built.
+
 ## The method findings
 
 These cost more time than the kernel ones, and generalise further.
@@ -156,6 +177,17 @@ points. Reporting "220 mm, best of the sweep" would be a lie of omission.
 On a model with 18 parameters, 11 were assumptions. That is normal and fine -
 as long as nobody later reads one as a measurement. One of those assumptions,
 the boxing width, set the scale of the entire part.
+
+### Measure a fit, do not declare one
+
+A clearance in a parameter is a claim. The distance between two solids is a
+measurement, and the two part company exactly when something is wrong - a
+mirrored arc, a sign, an offset applied twice. `MechanicalFeature.check_fit()`
+compares the two and reports both numbers.
+
+One detail worth knowing: a socket approximated by 24 arc segments measures
+0.144 mm where the parameter says 0.150. That gap is the polygon
+approximation, and it is reported as measured rather than rounded away.
 
 ### Where the method is weakest
 

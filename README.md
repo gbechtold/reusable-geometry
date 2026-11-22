@@ -181,6 +181,93 @@ flat optimum: best and worst differ by 1.4 points, so this parameter is not
 constrained by the reference
 ```
 
+## Features, and why they form a hierarchy
+
+A feature is a named piece of geometry that knows how to check itself. The
+hierarchy is not decoration: each level says how the feature is made, and that
+decides what can go wrong with it.
+
+```
+Feature                      a named thing with its own checks
+├── ProfileFeature           changes a wall. No body, no boolean, so nothing
+│                            can fail at build time.
+└── BodyFeature              brings solids with it
+        └── MechanicalFeature    two parts that have to fit, gap MEASURED
+```
+
+`MechanicalFeature` is where it earns its keep. A fit is not a shape, it is a
+relationship between two shapes, and the thing that goes wrong is always the
+same: the gap is not what the drawing says. So the base class owns the
+clearance and measures it; a subclass only supplies the two bodies.
+
+```python
+from rgeo import ClipHinge
+
+hinge = ClipHinge(pin_radius=1.1, clearance=0.15)
+hinge.measured_gap()        # 0.144 - measured between the solids, not claimed
+hinge.snap_interference()   # 0.28 mm the jaws have to spread. Zero = falls out
+print(hinge.checks().report())
+```
+
+### A mechanical feature: the clip hinge
+
+![clip hinge](docs/img/hinge.png)
+
+A hinge the temple clips into - a slotted fork on the frame, a cross pin on
+the temple, pushed past a narrow point into a round socket. Both halves are
+plain extrusions of a 2D outline: the snap is the **shape of the slot**, not
+something cut into it afterwards. That is why it builds in milliseconds and
+cannot fail a boolean.
+
+Its checks are the ones a part like this actually fails:
+
+```
+ok   clip hinge parts clear each other      0.144 mm   want > 0 mm
+ok   clip hinge gap matches the clearance   0.144 mm   want 0.15 +/- 0.06 mm
+ok   clip hinge jaw thickness                2.10 mm   want >= 0.8 mm
+ok   clip hinge snap interference            0.28 mm   want >= 0.05 mm
+ok   clip hinge snap is not excessive        0.28 mm   want < 0.88 mm
+```
+
+### Inheritance that pays: temples
+
+![three temple shapes](docs/img/temples.png)
+
+Every temple is the same construction - a centre line, a section swept along
+it, a rounded tip - and they differ in exactly one thing: what the centre line
+does towards the ear. So that is the only method a subclass overrides.
+
+```python
+class SkullTemple(Temple):
+    def drop(self, f):                     # f: 0 at the hinge, 1 at the tip
+        t = np.clip((f - self.drop_start) / (1 - self.drop_start), 0, 1)
+        return -self.drop_depth * (t * t * (3 - 2 * t))
+```
+
+`Temple` straight, `LibraryTemple` straight with a deeper tip, `SkullTemple`
+bent behind the ear, `CableTemple` curled right round it. If you find yourself
+overriding more than `drop()`, the base class is wrong and should be fixed
+instead.
+
+### Profile features
+
+`Groove`, `EdgeBreak` and `Boss` change a wall rather than cutting it:
+
+```python
+wall = Groove(at=2.6, width=0.9, depth=0.7).apply_to(
+       EdgeBreak(0.6).apply_to(WallProfile(6.0, outward=True)))
+
+boss = Boss(angle_centre=170, angle_width=30, thickness=9.0)
+shell.outer(outline, rim, thickness=boss.thickness_for(outline, 6.0))
+```
+
+A `Boss` returns a per-point thickness instead of a body, which is how a
+raised pad gets made without a union - the operation that returned -2.4e6 mm³
+when it was tried. Its limit is honest and enforced: a varying wall puts the
+back face on no single surface, so it cannot be trimmed out of one, and a
+ruled back face needs exactly one hole to span to. With more holes than that,
+rgeo refuses and says why.
+
 ## What it is not
 
 - **Not a CAD kernel.** It sits on CadQuery and OpenCascade and works around
@@ -194,8 +281,10 @@ constrained by the reference
 ## Examples
 
 ```bash
-python examples/eyewear/front.py        # build, export, render, check
-python examples/eyewear/roundtrip.py    # render, trace it back, measure
+python examples/eyewear/front.py              # build, export, render, check
+python examples/eyewear/roundtrip.py          # render, trace it back, measure
+python examples/eyewear/glasses.py            # the whole pair: front, hinges, temples
+python examples/eyewear/glasses.py --temple cable
 ```
 
 `front.py` builds a complete spectacle front - three openings, chamfers, lens
@@ -203,7 +292,8 @@ groove, face-form wrap - from parameters alone. The outlines are generated,
 not traced, so the repository ships without anyone else's imagery.
 `roundtrip.py` exercises the measuring half: it renders the model from a
 viewpoint the fitter is not told about and checks that the fitter finds it
-again.
+again. `glasses.py` puts the features together into seven parts - a front, two
+clip hinges, two temples, two pins - and runs every check each of them brings.
 
 ## Origin
 
