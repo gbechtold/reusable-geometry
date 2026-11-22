@@ -6,7 +6,7 @@ Die Werkzeuge aus `261121-Brillenfassung-MVP` als eigenstaendiges, abstraktes
 Open-Source-Paket, damit sie in anderen Projekten wiederverwendbar sind und
 nicht in der Brillen-Fachlogik stecken bleiben.
 
-Repo: https://github.com/gbechtold/reusable-geometry (MIT, **derzeit privat**)
+Repo: https://github.com/gbechtold/reusable-geometry (MIT, oeffentlich seit 22.11.2026)
 
 ## Stand 22.11.2026
 
@@ -28,17 +28,14 @@ zeichnet den Render ab und misst beides gegeneinander.
 
 ## Was offen ist
 
-1. **Veroeffentlichung noch nicht entschieden.** Privat angelegt, Register-
-   Eintrag `7261feb013d6`. Oeffentlich waere Stufe 2 nach AGENTS.md Paragraf 3
-   und braucht eine Freigabe.
-2. **Noch nicht auf PyPI.** `pyproject.toml` ist fertig, der Name `rgeo` auf
+1. **Noch nicht auf PyPI.** `pyproject.toml` ist fertig, der Name `rgeo` auf
    PyPI nicht geprueft.
-3. **Veraenderliche Wandstaerke schliesst getrimmte Rueckdeckel aus.** Mit mehr
+2. **Veraenderliche Wandstaerke schliesst getrimmte Rueckdeckel aus.** Mit mehr
    als einem Loch wird abgelehnt. Eine Freiformflaeche durch die hinteren Wires
    waere der Ausweg, ist aber ein eigenes Thema.
-4. **Nur die Flaechen, die gebraucht wurden**: Ebene, Zylinder, Kugel, Torus.
+3. **Nur die Flaechen, die gebraucht wurden**: Ebene, Zylinder, Kugel, Torus.
    Kegel und Freiform fehlen.
-5. **Die Brille zieht noch nicht auf rgeo um.** `261121-Brillenfassung-MVP`
+4. **Die Brille zieht noch nicht auf rgeo um.** `261121-Brillenfassung-MVP`
    hat weiter seine eigene Kopie der Module.
 
 ## Arbeitsweise
