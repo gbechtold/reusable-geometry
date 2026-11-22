@@ -1,0 +1,45 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rgeo"
+version = "0.1.0"
+description = "From an idea or a photograph to reusable, checkable CAD geometry"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Guntram Bechtold" }]
+keywords = ["cad", "cadquery", "opencascade", "parametric", "geometry",
+            "reverse-engineering", "photogrammetry", "3d-printing"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Manufacturing",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia :: Graphics :: 3D Modeling",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "cadquery>=2.8",
+  "numpy>=1.24",
+  "opencv-python-headless>=4.8",
+  "scipy>=1.10",
+  "shapely>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/gbechtold/reusable-geometry"
+Issues = "https://github.com/gbechtold/reusable-geometry/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rgeo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

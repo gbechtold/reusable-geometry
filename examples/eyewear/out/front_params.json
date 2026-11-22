@@ -1,0 +1,128 @@
+{
+ "lens_width": {
+  "value": 56.0,
+  "kind": "assumed",
+  "source": "typical aviator boxing",
+  "evidence": "nothing in a photo fixes absolute scale",
+  "unit": "mm"
+ },
+ "lens_height": {
+  "value": 44.8,
+  "kind": "measured",
+  "source": "front photo",
+  "evidence": "bounding box of the opening",
+  "unit": "mm"
+ },
+ "dbl": {
+  "value": 17.6,
+  "kind": "measured",
+  "source": "front photo",
+  "evidence": "gap between the openings",
+  "unit": "mm"
+ },
+ "rim_top": {
+  "value": 3.7,
+  "kind": "measured",
+  "source": "front photo",
+  "evidence": "brow bar above the lens",
+  "unit": "mm"
+ },
+ "rim_side": {
+  "value": 5.7,
+  "kind": "measured",
+  "source": "front photo",
+  "evidence": "median radial gap",
+  "unit": "mm"
+ },
+ "corner": {
+  "value": 0.22,
+  "kind": "assumed",
+  "source": "navigator shape",
+  "evidence": "0 = rectangle, 1 = ellipse",
+  "unit": ""
+ },
+ "base_curve": {
+  "value": 6.0,
+  "kind": "assumed",
+  "source": "most common lens base curve",
+  "evidence": "",
+  "unit": ""
+ },
+ "front_radius": {
+  "value": 220.0,
+  "kind": "fitted",
+  "source": "three-quarter view",
+  "evidence": "flat optimum, 68-69% across 220..320",
+  "unit": "mm"
+ },
+ "thickness": {
+  "value": 6.0,
+  "kind": "assumed",
+  "source": "typical SLS front",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "chamfer_front": {
+  "value": 1.1,
+  "kind": "assumed",
+  "source": "bright bevel in the photos",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "chamfer_back": {
+  "value": 0.7,
+  "kind": "assumed",
+  "source": "narrower than the front bevel",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "chamfer_lens": {
+  "value": 0.6,
+  "kind": "assumed",
+  "source": "edge break at the opening",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "groove_depth": {
+  "value": 0.7,
+  "kind": "assumed",
+  "source": "standard lens bevel",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "groove_width": {
+  "value": 0.9,
+  "kind": "assumed",
+  "source": "standard lens bevel",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "groove_from_front": {
+  "value": 2.6,
+  "kind": "assumed",
+  "source": "lens sits this far behind the front",
+  "evidence": "",
+  "unit": "mm"
+ },
+ "bridge_window": {
+  "value": 13.0,
+  "kind": "measured",
+  "source": "front photo",
+  "evidence": "width of the opening",
+  "unit": "mm"
+ },
+ "bridge_window_h": {
+  "value": 7.0,
+  "kind": "measured",
+  "source": "front photo",
+  "evidence": "height of the opening",
+  "unit": "mm"
+ },
+ "bridge_window_top": {
+  "value": 3.5,
+  "kind": "assumed",
+  "source": "material left above the window, below the brow bar top",
+  "evidence": "",
+  "unit": "mm"
+ }
+}
