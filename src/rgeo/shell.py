@@ -212,30 +212,13 @@ def sew(faces, tol: float = 1.0e-5) -> cq.Solid:
     return solid
 
 
-def sweep_sections(path, sections, close_ends: bool = True) -> cq.Workplane:
-    """A body from cross sections along a path - temples, handles, frames.
+def sweep_sections(path, sections, close_ends: bool = True, **kwargs):
+    """Deprecated: use rgeo.sweep, which can also handle a closed path.
 
-    `path` is an (n, 3) array of centre points; `sections` is a list of (m, 2)
-    outlines, one per path point, in the local frame (across, up).
+    Kept so existing code keeps working. The old implementation pinned the up
+    direction to (0, 1, 0) and collapsed wherever a path ran vertically, which
+    is exactly where a closed rim runs. `sweep` defaults to detecting that and
+    switching frames.
     """
-    path = np.asarray(path, float)
-    if len(path) != len(sections):
-        raise GeometryError("one section per path point, please")
-    wires = []
-    for i, sec in enumerate(sections):
-        j, k = min(i + 1, len(path) - 1), max(i - 1, 0)
-        tangent = path[j] - path[k]
-        n = np.linalg.norm(tangent)
-        if n < 1e-12:
-            raise GeometryError(f"path repeats a point at index {i}")
-        tangent = tangent / n
-        up = np.array([0.0, 1.0, 0.0])
-        across = np.cross(up, tangent)
-        across /= np.linalg.norm(across)
-        up = np.cross(tangent, across)
-        pts = [cq.Vector(*(path[i] + across * u + up * v)) for u, v in np.asarray(sec)]
-        wires.append(cq.Workplane("XY").polyline(pts).close().wire().val())
-    solid = cq.Solid.makeLoft(wires, ruled=True)
-    if solid.Volume() < 0:
-        solid = cq.Solid(solid.wrapped.Reversed())
-    return cq.Workplane("XY").add(solid)
+    from .path import sweep_path
+    return sweep_path(path, sections, **kwargs)

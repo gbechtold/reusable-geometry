@@ -143,6 +143,19 @@ when the geometry is *right*.
 
 **Consequence.** `_dedupe` drops repeated points before any wire is built.
 
+### 13. A pinned-up frame collapses wherever the path runs vertical
+
+`across = up x tangent` with `up` pinned to (0, 1, 0) is right for anything
+with a real up - a temple never runs vertically - and degenerate for a closed
+rim, which runs vertically at both its left and right extremes. There the
+cross product goes to zero, the section has no area, and the loft comes out
+broken.
+
+Found by a consumer of this package that needed a 1.2 mm wire rim and had to
+write its own sweep. Parallel transport has no preferred direction and
+therefore no singularity; `frame="auto"` uses the pinned frame where it works
+and falls back where it does not.
+
 ## The method findings
 
 These cost more time than the kernel ones, and generalise further.

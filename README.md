@@ -268,6 +268,40 @@ back face on no single surface, so it cannot be trimmed out of one, and a
 ruled back face needs exactly one hole to span to. With more holes than that,
 rgeo refuses and says why.
 
+## Sweeping along a path
+
+A wire rim, a brow bar, a handle, a rail: one section carried along a curve.
+
+```python
+from rgeo import tube, sweep_path
+
+rim  = tube(path, radius=0.6, closed=True)      # closed wire loop
+arm  = sweep_path(path, sections, frame="up")   # keeps a consistent "up"
+```
+
+The hard part is deciding which way is up at every point, and the two useful
+answers fail in different places:
+
+| frame | keeps "up" | survives a vertical run |
+|---|---|---|
+| `"up"` | yes, no roll | **no** - the section collapses |
+| `"transport"` | drifts | yes, anywhere |
+| `"auto"` | where it can | yes, falls back |
+
+A closed rim runs vertically at its left and right extremes, which is exactly
+where a pinned-up frame dies - the cross product goes to zero and the section
+has no area. `"transport"` rotates each frame by the smallest rotation taking
+the previous tangent onto the current one: no preferred direction, so no
+singularity, and the section does not spin along the path either.
+
+`frame="up"` now says where it would die rather than building a broken loft:
+
+```
+GeometryError: the path runs parallel to up=(0.0, 1.0, 0.0) at point 0 of 120,
+where a fixed frame collapses. Use frame="transport" - a closed rim always
+needs it.
+```
+
 ## Turntables
 
 ![a front turning in front of a still camera](docs/img/turntable.gif)

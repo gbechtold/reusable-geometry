@@ -29,6 +29,8 @@ from .fit import (FitResult, comparison_strip, fit_camera, iou,
 from .outline import (align_by_angle, attachments, ccw, clean, cut_at_x,
                       mean_radial_gap, offset, point_at_angle, radius_at,
                       resample, sector, signed_area, smooth, subtract)
+from .path import (circle_section, fixed_frames, resample_path, sweep_path,
+                   transported_frames, tube)
 from .params import (Assumed, Derived, Fitted, Measured, ParamSet, Provenance,
                      Value)
 from .profile import WallProfile
@@ -39,7 +41,7 @@ from .surface import (Cylinder, GeometryError, Plane, Sphere, Surface, Torus)
 from .temple import CableTemple, LibraryTemple, SkullTemple, Temple
 from .trace import Traced, frame_mask, mirror_mask, overlay, trace
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "Measured", "Fitted", "Assumed", "Derived", "Value", "Provenance", "ParamSet",
