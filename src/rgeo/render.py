@@ -202,14 +202,30 @@ def label(img, text: str) -> np.ndarray:
     return out
 
 
-def views(v, t, cameras: dict, size=(760, 560), margin: float = 0.06):
+def views(v, t, cameras: dict, size=(760, 560), margin: float = 0.06,
+          supersample: int = 3, smooth: bool = True):
     """Render a named set of views with one call. Same cameras every run, so
-    two versions can be compared by eye without re-aiming anything."""
+    two versions can be compared by eye without re-aiming anything.
+
+    Supersampled by default: the rasteriser has no antialiasing, and on a
+    still that anyone will look at twice the stepped edges are the first thing
+    they see. It costs little - the work here is per triangle, not per pixel.
+    """
+    import cv2 as _cv2
     out = {}
     for name, angles in cameras.items():
         yaw, pitch, roll = angles
         cam = fit_to_frame(v, Camera(yaw, pitch, roll), size, margin)
-        img, mask = shade(v, t, cam, size)
+        if supersample > 1:
+            big = (size[0] * supersample, size[1] * supersample)
+            cam_big = Camera(cam.yaw, cam.pitch, cam.roll,
+                             cam.scale * supersample, cam.cx * supersample,
+                             cam.cy * supersample)
+            img, mask = shade(v, t, cam_big, big, smooth=smooth)
+            img = _cv2.resize(img, size, interpolation=_cv2.INTER_AREA)
+            mask = _cv2.resize(mask, size, interpolation=_cv2.INTER_AREA)
+        else:
+            img, mask = shade(v, t, cam, size, smooth=smooth)
         out[name] = (img, mask, cam)
     return out
 
