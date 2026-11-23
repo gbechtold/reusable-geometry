@@ -117,3 +117,55 @@ def test_a_truncated_stl_says_so(tmp_path):
     path.write_bytes(b"\0" * 80 + (999).to_bytes(4, "little") + b"\0" * 50)
     with pytest.raises(ValueError, match="truncated"):
         load_stl(path)
+
+
+def test_supersampling_changes_the_pixels_but_not_the_shape(body):
+    """Antialiasing has to smooth edges without moving the silhouette."""
+    from rgeo import rock as rock_
+    v, t = mesh(body, 0.05, 0.3)
+    plain = rock_(v, t, size=(200, 150), frames=2, amplitude=5.0)[0]
+    smooth = rock_(v, t, size=(200, 150), frames=2, amplitude=5.0, supersample=3)[0]
+    assert plain.shape == smooth.shape
+    assert not np.array_equal(plain, smooth)
+    # the part covers the same area to within a per-cent
+    a = (plain < 200).sum()
+    b = (smooth < 200).sum()
+    assert abs(a - b) / max(a, 1) < 0.02
+
+
+def test_smooth_shading_removes_the_facets(body):
+    """Flat shading gives each triangle one tone, so neighbouring triangles
+    step. Averaging the vertex normals has to reduce that stepping."""
+    from rgeo import Camera, fit_to_frame, shade
+    v, t = mesh(body, 0.05, 0.3)
+    cam = fit_to_frame(v, Camera(yaw=-25, pitch=12), (300, 220))
+    flat, mask = shade(v, t, cam, (300, 220), smooth=False)
+    soft, _ = shade(v, t, cam, (300, 220), smooth=True)
+
+    def roughness(img):
+        inside = mask > 0
+        d = np.abs(np.diff(img.astype(int), axis=1))[:, :-1]
+        return d[inside[:, 1:-1]].mean()
+
+    assert roughness(soft) < roughness(flat)
+
+
+def test_vertex_normals_are_unit_length(body):
+    from rgeo import vertex_normals
+    v, t = mesh(body, 0.08, 0.4)
+    n = vertex_normals(v, t)
+    assert np.allclose(np.linalg.norm(n, axis=1), 1.0, atol=1e-6)
+
+
+def test_fewer_colours_cost_nothing_visible(body, tmp_path):
+    """The measurement behind the default: 32 colours against 128."""
+    from PIL import Image
+    v, t = mesh(body, 0.05, 0.3)
+    frames = turntable(v, t, size=(240, 180), frames=6, supersample=2)
+    small = write_gif(frames, tmp_path / "a.gif", colors=32)
+    big = write_gif(frames, tmp_path / "b.gif", colors=128)
+    assert small.stat().st_size < big.stat().st_size
+    with Image.open(small) as x, Image.open(big) as y:
+        a = np.array(x.convert("L"), int)
+        b = np.array(y.convert("L"), int)
+    assert np.abs(a - b).mean() < 2.0

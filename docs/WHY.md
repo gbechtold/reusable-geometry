@@ -156,6 +156,26 @@ write its own sweep. Parallel transport has no preferred direction and
 therefore no singularity; `frame="auto"` uses the pinned frame where it works
 and falls back where it does not.
 
+### 14. A shared GIF palette is worse than one per frame
+
+Quantising every frame to one palette looked like it should help GIF's
+between-frame compression. Measured on a 36-frame sweep at 860 x 560:
+
+| colours | per-frame palette | one shared palette |
+|---|---|---|
+| 32 | **594 kB** | 1010 kB |
+| 48 | 699 kB | 1014 kB |
+| 64 | 782 kB | 1014 kB |
+| 128 | 971 kB | 1021 kB |
+
+Worse at every setting. Pillow's own optimiser handles the per-frame case
+better than a hand-shared palette does. The same table settles the colour
+count: 32 against 128 differ by 0.13 of 255 on average, which is nothing on a
+greyscale render, and save 40 %.
+
+Recorded because the theory was plausible and wrong, and the next person will
+have the same idea.
+
 ## The method findings
 
 These cost more time than the kernel ones, and generalise further.

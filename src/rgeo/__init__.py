@@ -35,13 +35,14 @@ from .params import (Assumed, Derived, Fitted, Measured, ParamSet, Provenance,
                      Value)
 from .profile import WallProfile
 from .render import (STANDARD_VIEWS, Camera, fit_to_frame, grid, label,
-                     load_stl, merge, mesh, shade, silhouette, views)
+                     load_stl, merge, mesh, shade, silhouette, vertex_normals,
+                     views)
 from .shell import Shell, sew, sweep_sections
 from .surface import (Cylinder, GeometryError, Plane, Sphere, Surface, Torus)
 from .temple import CableTemple, LibraryTemple, SkullTemple, Temple
 from .trace import Traced, frame_mask, mirror_mask, overlay, trace
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __all__ = [
     "Measured", "Fitted", "Assumed", "Derived", "Value", "Provenance", "ParamSet",
@@ -52,7 +53,7 @@ __all__ = [
     "cut_at_x", "radius_at", "point_at_angle", "align_by_angle",
     "mean_radial_gap", "attachments", "sector",
     "Camera", "mesh", "merge", "silhouette", "shade", "views", "grid", "label",
-    "load_stl",
+    "load_stl", "vertex_normals",
     "fit_to_frame", "STANDARD_VIEWS",
     "fit_camera", "iou", "outline_distance", "comparison_strip", "sweep",
     "FitResult",

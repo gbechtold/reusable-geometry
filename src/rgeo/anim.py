@@ -15,9 +15,28 @@ from __future__ import annotations
 import math
 from pathlib import Path
 
+import cv2
 import numpy as np
 
 from .render import Camera, shade
+
+
+def _render(v, t, cam: Camera, size, background: int, supersample: int):
+    """One frame, optionally rendered large and scaled down.
+
+    Supersampling is the cheapest quality there is here: the renderer fills
+    triangles without antialiasing, so edges come out stepped. Rendering at
+    2x or 3x and averaging down removes that, and on a shaded grey surface
+    it is the difference between a render and a screenshot.
+    """
+    if supersample <= 1:
+        img, _ = shade(v, t, cam, size, background=background)
+        return img
+    big = (size[0] * supersample, size[1] * supersample)
+    cam_big = Camera(cam.yaw, cam.pitch, cam.roll, cam.scale * supersample,
+                     cam.cx * supersample, cam.cy * supersample)
+    img, _ = shade(v, t, cam_big, big, background=background)
+    return cv2.resize(img, size, interpolation=cv2.INTER_AREA)
 
 
 def fixed_camera(v, size, margin: float = 0.08, pitch: float = 0.0,
@@ -45,7 +64,7 @@ def fixed_camera(v, size, margin: float = 0.08, pitch: float = 0.0,
 def turntable(v, t, size=(640, 480), frames: int = 48, start_yaw: float = 0.0,
               sweep: float = 360.0, pitch: float = 0.0, roll: float = 0.0,
               margin: float = 0.08, background: int = 244, ease: bool = False,
-              progress=None):
+              supersample: int = 1, progress=None):
     """Render a sweep. Returns a list of greyscale frames.
 
     `sweep=360` goes right round and loops seamlessly. A partial sweep -
@@ -62,19 +81,27 @@ def turntable(v, t, size=(640, 480), frames: int = 48, start_yaw: float = 0.0,
     for i, s in enumerate(steps):
         cam = Camera(start_yaw + sweep * float(s), pitch, roll,
                      cam0.scale, cam0.cx, cam0.cy)
-        img, _ = shade(v, t, cam, size, background=background)
-        out.append(img)
+        out.append(_render(v, t, cam, size, background, supersample))
         if progress:
             progress(i + 1, len(steps))
     return out
 
 
 def write_gif(frames, path, fps: float = 24.0, loop: int = 0,
-              colors: int = 64) -> Path:
+              colors: int = 32) -> Path:
     """Write frames as an animated GIF.
 
-    Greyscale renders need very few colours; quantising to 64 keeps the file
-    small without visible banding on a shaded surface.
+    Greyscale renders need very few colours. Measured on a 36-frame sweep at
+    860 x 560, adaptive palette per frame:
+
+        32 colours   594 kB     128 colours   971 kB
+
+    and the two are indistinguishable - mean difference 0.13 of 255. Hence 32.
+
+    A single shared palette across all frames was tried, on the theory that it
+    would help GIF's between-frame compression. It does the opposite: 1010 kB
+    at 32 colours, worse at every setting. Pillow's own optimiser handles the
+    per-frame case better.
     """
     try:
         from PIL import Image
@@ -83,6 +110,7 @@ def write_gif(frames, path, fps: float = 24.0, loop: int = 0,
 
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+
     images = [Image.fromarray(np.asarray(f)).convert("P", palette=Image.ADAPTIVE,
                                                     colors=colors)
               for f in frames]
@@ -101,7 +129,7 @@ def turntable_gif(v, t, path, size=(640, 480), frames: int = 48, fps: float = 24
 
 
 def rock(v, t, size=(640, 480), frames: int = 36, amplitude: float = 35.0,
-         centre_yaw: float = 0.0, **kwargs):
+         centre_yaw: float = 0.0, supersample: int = 1, **kwargs):
     """A sweep that goes out and comes back - for showing one face of a part
     without ever turning away from it.
 
@@ -120,7 +148,6 @@ def rock(v, t, size=(640, 480), frames: int = 36, amplitude: float = 35.0,
         cam = Camera(centre_yaw + amplitude * (2 * float(s) - 1),
                      kwargs.get("pitch", 0.0), kwargs.get("roll", 0.0),
                      cam0.scale, cam0.cx, cam0.cy)
-        img, _ = shade(v, t, cam, size,
-                       background=kwargs.get("background", 244))
-        out.append(img)
+        out.append(_render(v, t, cam, size,
+                           kwargs.get("background", 244), supersample))
     return out

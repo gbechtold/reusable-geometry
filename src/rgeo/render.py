@@ -115,9 +115,31 @@ def silhouette(v, t, cam: Camera, size) -> np.ndarray:
     return m
 
 
-def shade(v, t, cam: Camera, size, light=(-0.35, 0.45, 1.0), background: int = 238):
+def vertex_normals(v, t):
+    """Area-weighted normal at every vertex.
+
+    Averaging the faces that meet at a vertex is what removes the facets from
+    a shaded render. Without it a tessellated surface shows every triangle,
+    and a curved part looks like a low-poly model of itself however fine the
+    mesh is.
+    """
+    face = np.cross(v[t[:, 1]] - v[t[:, 0]], v[t[:, 2]] - v[t[:, 0]])
+    out = np.zeros_like(v)
+    for k in range(3):
+        np.add.at(out, t[:, k], face)        # area-weighted: not normalised yet
+    ln = np.linalg.norm(out, axis=1)[:, None]
+    return np.divide(out, ln, out=np.zeros_like(out), where=ln > 1e-12)
+
+
+def shade(v, t, cam: Camera, size, light=(-0.35, 0.45, 1.0), background: int = 238,
+          smooth: bool = True):
     """Lambert plus a little specular, painter's algorithm. Returns the image
-    and the silhouette."""
+    and the silhouette.
+
+    `smooth` shades each triangle by the average of its vertex normals rather
+    than by its own, which hides the tessellation. Set it False to see the
+    mesh as it is - useful when judging whether a tolerance is fine enough.
+    """
     w, h = size
     R = cam.matrix()
     p = v @ R.T
@@ -127,8 +149,12 @@ def shade(v, t, cam: Camera, size, light=(-0.35, 0.45, 1.0), background: int = 2
     front = (e1[:, 0] * e2[:, 1] - e1[:, 1] * e2[:, 0]) < 0
     tri, depth, idx = tri[front], depth[front], t[front]
 
-    f = p[idx]
-    n = np.cross(f[:, 1] - f[:, 0], f[:, 2] - f[:, 0])
+    if smooth:
+        vn = vertex_normals(v, t) @ R.T
+        n = vn[idx].mean(axis=1)
+    else:
+        f = p[idx]
+        n = np.cross(f[:, 1] - f[:, 0], f[:, 2] - f[:, 0])
     ln = np.linalg.norm(n, axis=1)[:, None]
     n = np.divide(n, ln, out=np.zeros_like(n), where=ln > 1e-12)
     L = np.array(light, float); L /= np.linalg.norm(L)
