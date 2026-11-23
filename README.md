@@ -3,7 +3,7 @@
 Build parametric CAD in code when your reference is a photograph rather than a
 drawing, and prove afterwards how close you got.
 
-![a parametric eyewear front built with rgeo](docs/img/example-front.png)
+![a parametric eyewear front built with rgeo](docs/img/example-front.gif)
 
 ```python
 from rgeo import Shell, Torus, WallProfile, mesh_report
@@ -304,8 +304,6 @@ needs it.
 
 ## Turntables
 
-![a front turning in front of a still camera](docs/img/turntable.gif)
-
 A part is easier to judge turning than standing still, and a GIF goes in a
 pull request, an issue or a report without anyone installing a viewer.
 
@@ -324,6 +322,8 @@ The one thing easy to get wrong here is the camera. Fitting it per frame makes
 the model breathe in and out as its silhouette changes width, so `rgeo` sizes
 the view once, from the radius of the point cloud, and every frame shares that
 scale. There is a test for it.
+
+![a full turn in front of a still camera](docs/img/turntable.gif)
 
 `rock()` leaves a view and comes back instead of turning right round - for a
 front elevation shown next to its drawing, where losing the reference view
@@ -348,9 +348,12 @@ python examples/eyewear/glasses.py            # the whole pair: front, hinges, t
 python examples/eyewear/glasses.py --temple cable
 ```
 
+![the example rendered from four fixed cameras](docs/img/example-front.png)
+
 `front.py` builds a complete spectacle front - three openings, chamfers, lens
-groove, face-form wrap - from parameters alone. The outlines are generated,
-not traced, so the repository ships without anyone else's imagery.
+groove, face-form wrap - from parameters alone, and writes the turntable at
+the top of this page. The outlines are generated, not traced, so the
+repository ships without anyone else's imagery.
 `roundtrip.py` exercises the measuring half: it renders the model from a
 viewpoint the fitter is not told about and checks that the fitter finds it
 again. `glasses.py` puts the features together into seven parts - a front, two
