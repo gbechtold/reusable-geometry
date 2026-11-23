@@ -10,9 +10,11 @@ Repo: https://github.com/gbechtold/reusable-geometry (MIT, oeffentlich seit 22.1
 
 ## Stand 22.11.2026
 
-Version 0.2.0: 12 Module, 77 Tests gruen, CI gruen auf Python 3.11 und 3.12,
-drei lauffaehige Beispiele. Seit 22.11.2026 dazu eine Feature-Hierarchie mit
-klickbarem Scharnier und Buegeln. Kein fremdes Bildmaterial im Repo: das
+Version 0.5.0: 15 Module, 104 Tests gruen, CI gruen auf Python 3.11 und 3.12,
+drei lauffaehige Beispiele. 22.11.2026 kam die Feature-Hierarchie dazu
+(klickbares Scharnier, Buegel), 23.11.2026 drei Dinge, die ein Verbraucher des
+Pakets gebraucht hat: Animationen (`rgeo.anim`), ein STL-Leser und
+`rgeo.path` fuer Profile entlang geschlossener Pfade. Kein fremdes Bildmaterial im Repo: das
 Beispiel erzeugt seine Konturen selbst, und `roundtrip.py` rendert das Modell,
 zeichnet den Render ab und misst beides gegeneinander.
 
@@ -46,6 +48,24 @@ Querschnitt, Verjuengung und Pruefungen, die Unterklassen ueberschreiben nur
    Dadurch gibt es im Grundkoerper keine einzige Boolean-Operation.
 3. **Der Vergleich passt die Kamera an, nie die Geometrie**, und meldet
    Millimeter neben der Ueberdeckung.
+
+## Was von aussen zurueckkam
+
+Das Brillen-Projekt `261122-Iconic-Eyewear` ist der erste echte Verbraucher
+und hat drei Luecken aufgedeckt, die hier niemand gesucht haette:
+
+1. **`sweep_sections` hielt "oben" fest** und brach genau dort, wo ein
+   Drahtrand senkrecht laeuft, also links und rechts am Rand. Der Querschnitt
+   hatte dort keine Flaeche. Jetzt gibt es parallel verschobene Rahmen,
+   `frame="auto"` faellt darauf zurueck, und `frame="up"` nennt den Punkt, an
+   dem es aufgeben wuerde.
+2. **Animation fehlte ganz.** Jetzt `turntable`, `rock` und `write_gif`, mit
+   einer Kamera, die einmal bemessen wird statt je Bild.
+3. **Flat Shading zeigte jedes Dreieck.** Geglaettete Normalen sind jetzt
+   Standard, dazu Supersampling.
+
+Die Regel dahinter: Was ein zweiter Verbraucher auch brauchen wuerde, gehoert
+hierher. Was nur fuer einen gilt, bleibt dort.
 
 ## Was offen ist
 
