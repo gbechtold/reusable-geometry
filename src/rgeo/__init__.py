@@ -20,6 +20,7 @@ says what can go wrong with each kind:
 Each stage is usable on its own. See README.md for the full walk-through and
 docs/WHY.md for the measurements behind the design decisions.
 """
+from .anim import fixed_camera, rock, turntable, turntable_gif, write_gif
 from .check import Check, CheckList, mass, mesh_report
 from .features import (Boss, BodyFeature, ClipHinge, EdgeBreak, Feature, Groove,
                        MechanicalFeature, ProfileFeature, distance)
@@ -31,14 +32,14 @@ from .outline import (align_by_angle, attachments, ccw, clean, cut_at_x,
 from .params import (Assumed, Derived, Fitted, Measured, ParamSet, Provenance,
                      Value)
 from .profile import WallProfile
-from .render import (STANDARD_VIEWS, Camera, fit_to_frame, grid, label, merge,
-                     mesh, shade, silhouette, views)
+from .render import (STANDARD_VIEWS, Camera, fit_to_frame, grid, label,
+                     load_stl, merge, mesh, shade, silhouette, views)
 from .shell import Shell, sew, sweep_sections
 from .surface import (Cylinder, GeometryError, Plane, Sphere, Surface, Torus)
 from .temple import CableTemple, LibraryTemple, SkullTemple, Temple
 from .trace import Traced, frame_mask, mirror_mask, overlay, trace
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "Measured", "Fitted", "Assumed", "Derived", "Value", "Provenance", "ParamSet",
@@ -49,9 +50,11 @@ __all__ = [
     "cut_at_x", "radius_at", "point_at_angle", "align_by_angle",
     "mean_radial_gap", "attachments", "sector",
     "Camera", "mesh", "merge", "silhouette", "shade", "views", "grid", "label",
+    "load_stl",
     "fit_to_frame", "STANDARD_VIEWS",
     "fit_camera", "iou", "outline_distance", "comparison_strip", "sweep",
     "FitResult",
+    "turntable", "turntable_gif", "write_gif", "rock", "fixed_camera",
     "CheckList", "Check", "mesh_report", "mass",
     "Feature", "ProfileFeature", "BodyFeature", "MechanicalFeature",
     "Groove", "EdgeBreak", "Boss", "ClipHinge", "distance",

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "rgeo"
-version = "0.2.0"
+version = "0.3.0"
 description = "From an idea or a photograph to reusable, checkable CAD geometry"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -28,6 +28,7 @@ dependencies = [
   "opencv-python-headless>=4.8",
   "scipy>=1.10",
   "shapely>=2.0",
+  "pillow>=9.0",
 ]
 
 [project.optional-dependencies]

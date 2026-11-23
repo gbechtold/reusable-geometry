@@ -268,6 +268,33 @@ back face on no single surface, so it cannot be trimmed out of one, and a
 ruled back face needs exactly one hole to span to. With more holes than that,
 rgeo refuses and says why.
 
+## Turntables
+
+![a front turning in front of a still camera](docs/img/turntable.gif)
+
+A part is easier to judge turning than standing still, and a GIF goes in a
+pull request, an issue or a report without anyone installing a viewer.
+
+```python
+from rgeo import load_stl, turntable_gif
+
+v, t = load_stl("out/front.stl")          # or mesh(solid) for a fresh build
+turntable_gif(v, t, "out/front.gif", frames=48, sweep=360, pitch=8)
+```
+
+`load_stl` reads binary or ASCII and merges coincident vertices, so a model
+built earlier - or by something else entirely - can be animated without being
+rebuilt.
+
+The one thing easy to get wrong here is the camera. Fitting it per frame makes
+the model breathe in and out as its silhouette changes width, so `rgeo` sizes
+the view once, from the radius of the point cloud, and every frame shares that
+scale. There is a test for it.
+
+`rock()` leaves a view and comes back instead of turning right round - for a
+front elevation shown next to its drawing, where losing the reference view
+costs more than the extra angles show.
+
 ## What it is not
 
 - **Not a CAD kernel.** It sits on CadQuery and OpenCascade and works around

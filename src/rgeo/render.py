@@ -46,6 +46,42 @@ def mesh(shape, tol: float = 0.02, angular: float = 0.15):
     return np.array([[p.x, p.y, p.z] for p in verts], float), np.array(tris, int)
 
 
+def load_stl(path, merge_vertices: bool = True):
+    """Read a mesh straight from an STL file, binary or ASCII.
+
+    So a model that was built earlier - or by something else entirely - can be
+    rendered, animated or compared without rebuilding it.
+    """
+    import struct
+    from pathlib import Path
+
+    raw = Path(path).read_bytes()
+    if raw[:5] == b"solid" and b"facet" in raw[:2048]:
+        verts = []
+        for line in raw.decode("ascii", "replace").splitlines():
+            parts = line.split()
+            if parts[:1] == ["vertex"]:
+                verts.append([float(x) for x in parts[1:4]])
+        v = np.array(verts, float)
+        if len(v) % 3:
+            raise ValueError(f"{path}: vertex count is not a multiple of three")
+        t = np.arange(len(v)).reshape(-1, 3)
+    else:
+        n = struct.unpack("<I", raw[80:84])[0]
+        if len(raw) < 84 + n * 50:
+            raise ValueError(f"{path}: truncated, expected {n} triangles")
+        block = np.frombuffer(raw[84:84 + n * 50], dtype=np.uint8).reshape(n, 50)
+        v = block[:, 12:48].copy().view("<f4").reshape(n * 3, 3).astype(float)
+        t = np.arange(n * 3).reshape(-1, 3)
+
+    if merge_vertices:
+        key = np.round(v / 1e-5).astype(np.int64)
+        _, first, inv = np.unique(key, axis=0, return_index=True,
+                                  return_inverse=True)
+        v, t = v[first], inv[t]
+    return v, t
+
+
 def merge(meshes):
     """One mesh from several, so parts share a camera."""
     vs, ts, off = [], [], 0
