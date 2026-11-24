@@ -9,8 +9,8 @@ Run it:
 
     python examples/eyewear/front.py
 
-Writes out/front.stl, out/front.step, out/front_views.png, two GIFs, and
-prints the parameter table and the checks.
+Writes out/front.stl, out/front.step, out/front_views.png,
+out/front_turntable.gif, and prints the parameter table and the checks.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 
 from rgeo import (Assumed, CheckList, Fitted, Measured, ParamSet, STANDARD_VIEWS,
                   Shell, Torus, WallProfile, grid, label, mass, mean_radial_gap,
-                  mesh, mesh_report, offset, resample, rock, turntable, views,
+                  mesh, mesh_report, offset, resample, turntable, views,
                   write_gif)
 from rgeo import ccw
 
@@ -222,15 +222,10 @@ def main() -> int:
                 grid([label(img, name) for name, (img, _, _) in rendered.items()]))
     print(f"  wrote {OUT / 'front_views.png'}")
 
-    for name, frames in (
-            ("front_rock.gif", rock(v, t, size=(820, 420), frames=36,
-                                    amplitude=11.0, pitch=5.0,
-                                    background=246, supersample=3)),
-            ("front_turntable.gif", turntable(v, t, size=(560, 400), frames=42,
-                                              sweep=360.0, pitch=10.0,
-                                              background=246, supersample=3))):
-        gif = write_gif(frames, OUT / name, fps=24)
-        print(f"  wrote {gif.name}, {gif.stat().st_size / 1024:.0f} kB")
+    gif = write_gif(turntable(v, t, size=(560, 400), frames=42, sweep=360.0,
+                              pitch=10.0, background=246, supersample=3),
+                    OUT / "front_turntable.gif", fps=24)
+    print(f"  wrote {gif.name}, {gif.stat().st_size / 1024:.0f} kB")
 
     print("\n[checks]")
     checks = check(p, solid)

@@ -3,7 +3,11 @@
 Build parametric CAD in code when your reference is a photograph rather than a
 drawing, and prove afterwards how close you got.
 
-![a parametric eyewear front built with rgeo](docs/img/example-front.gif)
+![an eyewear front built with rgeo, turning in front of a still camera](docs/img/hero.gif)
+
+<sub>A frame front taken off a technical drawing and rebuilt parametrically.
+Its outline sits 0.32 mm from the drawing's on average. Built in a sister
+project; the worked example in this repository builds its own.</sub>
 
 ```python
 from rgeo import Shell, Torus, WallProfile, mesh_report
@@ -351,9 +355,9 @@ python examples/eyewear/glasses.py --temple cable
 ![the example rendered from four fixed cameras](docs/img/example-front.png)
 
 `front.py` builds a complete spectacle front - three openings, chamfers, lens
-groove, face-form wrap - from parameters alone, and writes the turntable at
-the top of this page. The outlines are generated, not traced, so the
-repository ships without anyone else's imagery.
+groove, face-form wrap - from parameters alone, and writes the turntable
+further down this page. Its outlines are generated rather than traced, so the
+example runs without any reference imagery at all.
 `roundtrip.py` exercises the measuring half: it renders the model from a
 viewpoint the fitter is not told about and checks that the fitter finds it
 again. `glasses.py` puts the features together into seven parts - a front, two
